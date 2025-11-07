@@ -1,4 +1,4 @@
-//DOM Elements
+//DOM Element add from sapient
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
 const resultScreen = document.getElementById("result-screen");
