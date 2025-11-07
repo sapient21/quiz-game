@@ -1,4 +1,4 @@
-//DOM Element add from sapient
+// DOM Elements
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
 const resultScreen = document.getElementById("result-screen");
@@ -62,7 +62,7 @@ const quizQuestions = [
   },
 ];
 
-//quiz state vars
+// QUIZ STATE VARS
 let currentQuestionIndex = 0;
 let score = 0;
 let answersDisabled = false;
@@ -70,102 +70,109 @@ let answersDisabled = false;
 totalQuestionsSpan.textContent = quizQuestions.length;
 maxScoreSpan.textContent = quizQuestions.length;
 
-//event listeners
-
-startButton.addEventListener('click', startQuiz)
-restartButton.addEventListener('click', restartQuiz)
+// event listeners
+startButton.addEventListener("click", startQuiz);
+restartButton.addEventListener("click", restartQuiz);
 
 function startQuiz() {
-    //reset vars
-    currentQuestionIndex = 0;
-    scoreSpan.textContent = 0;
+  // reset vars
+  currentQuestionIndex = 0;
+  score = 0;
+  scoreSpan.textContent = 0;
 
-    startScreen.classList.remove('active')
-    quizScreen.classList.add('active')
+  startScreen.classList.remove("active");
+  quizScreen.classList.add("active");
 
-    showQuestion()
+  showQuestion();
 }
 
 function showQuestion() {
-    answersDisabled = false;
-    const currentQuestion = quizQuestions[currentQuestionIndex];
+  // reset state
+  answersDisabled = false;
 
-    currentQuestionSpan.textContent = currentQuestionIndex + 1;
+  const currentQuestion = quizQuestions[currentQuestionIndex];
 
-    const progressPercent = (currentQuestionIndex / quizQuestions.length) * 100;
-    progressBar.style.width = progressPercent = "%";
+  currentQuestionSpan.textContent = currentQuestionIndex + 1;
 
-    questionText.textContent = currentQuestion.question;
+  const progressPercent = (currentQuestionIndex / quizQuestions.length) * 100;
+  progressBar.style.width = progressPercent + "%";
 
-    //explain this in a second
-    answersContainer.innerHTML = '';
+  questionText.textContent = currentQuestion.question;
 
+  answersContainer.innerHTML = "";
 
-    currentQuestion.answers.forEach( answer => {
-        const button = document.createElement('button')
-        button.textContent = answer.text
-        button.classList.add('answer-btn');
+  currentQuestion.answers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.textContent = answer.text;
+    button.classList.add("answer-btn");
 
-        // what is dataset?
-        button.dataset.correct = answer.correct ;
+    // what is dataset? it's a property of the button element that allows you to store custom data
+    button.dataset.correct = answer.correct;
 
-        button.addEventListener('click', selectAnswer)
+    button.addEventListener("click", selectAnswer);
 
-        answersContainer.appendChild(button)
-    })
+    answersContainer.appendChild(button);
+  });
 }
 
 function selectAnswer(event) {
-    if (answersDisabled) return
+  // optimization check
+  if (answersDisabled) return;
 
-    answersDisabled = true;
+  answersDisabled = true;
 
-    const selectedButton = event.target;
-    const iscorrect = selectedButton.dataset.correct === 'true'
+  const selectedButton = event.target;
+  const isCorrect = selectedButton.dataset.correct === "true";
 
-    Array.from(answersContainer.children).forEach (button => {
-        if (button.dataset.correct === 'true') {
-            button.classList.add('correct')            
-        } else {
-            button.classList.add('incorrect')
-        }
-    });
-
-    if (iscorrect) {
-        score++;
-        scoreSpan.textContent = score;
+  // Here Array.from() is used to convert the NodeList returned by answersContainer.children into an array, this is because the NodeList is not an array and we need to use the forEach method
+  Array.from(answersContainer.children).forEach((button) => {
+    if (button.dataset.correct === "true") {
+      button.classList.add("correct");
+    } else if (button === selectedButton) {
+      button.classList.add("incorrect");
     }
+  });
 
-    setTimeout( () => {
-        currentQuestionIndex++;
+  if (isCorrect) {
+    score++;
+    scoreSpan.textContent = score;
+  }
 
-        if (currentQuestionIndex < quizQuestions.length) {
-            showQuestion()
-        }else {
-            showresults()
-        }
-    },1000)
-}
+  setTimeout(() => {
+    currentQuestionIndex++;
 
-function showresults() {
-    quizScreen.classList.remove('active');
-    quizScreen.classList.add('active');
-
-    finalScoreSpan.textContent = score;
-
-    const precentage = (score/ quizQuestions.length) * 100;
-
-    if(precentage === 100) {
-        resultMessage.textContent = 'Perfect! your\'re a genius! '
-    } else if (precentage === 50) {
-        resultMessage.textContent = 'good job'
+    // check if there are more questions or if the quiz is over
+    if (currentQuestionIndex < quizQuestions.length) {
+      showQuestion();
     } else {
-        resultMessage.textContent = 'BRUHHH! 💀'
+      showResults();
     }
+  }, 1000);
 }
 
+function showResults() {
+  quizScreen.classList.remove("active");
+  resultScreen.classList.add("active");
+
+  finalScoreSpan.textContent = score;
+
+  const percentage = (score / quizQuestions.length) * 100;
+
+  if (percentage === 100) {
+    resultMessage.textContent = "Perfect! You're a genius!";
+  } else if (percentage >= 80) {
+    resultMessage.textContent = "Great job! You know your stuff!";
+  } else if (percentage >= 60) {
+    resultMessage.textContent = "Good effort! Keep learning!";
+  } else if (percentage >= 40) {
+    resultMessage.textContent = "Not bad! Try again to improve!";
+  } else {
+    resultMessage.textContent = "Keep studying! You'll get better!";
+  }
+}
 
 function restartQuiz() {
-    resultScreen.classList.remove('active');
-    startQuiz();
+  resultScreen.classList.remove("active");
+
+  startQuiz();
 }
